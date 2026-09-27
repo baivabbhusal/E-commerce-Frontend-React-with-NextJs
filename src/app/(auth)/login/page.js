@@ -2,7 +2,7 @@
 import { useForm } from "react-hook-form";
 import { EMAIL_REGEX } from "@/constants/regex";
 import Link from "next/link";
-import { REGISTER_ROUTE } from "@/constants/routes";;
+import { REGISTER_ROUTE, FORGOT_PASSWORD_ROUTE } from "@/constants/routes";
 import { toast } from "react-toastify";
 import PasswordInput from "../_component/PasswordInput";
 import { useDispatch, useSelector } from "react-redux";
@@ -74,7 +74,7 @@ const LoginPage = () => {
                 <label htmlFor="remember" className="text-gray-500 dark:text-gray-300">Remember me</label>
               </div>
             </div>
-            <a href="#" className="text-sm font-medium text-primary hover:underline dark:text-primary-500">Forgot password?</a>
+            <Link href={FORGOT_PASSWORD_ROUTE} className="text-sm font-medium text-primary hover:underline dark:text-primary-500">Forgot password?</Link>
           </div>
           <Button loading={loading} label={"Sign In"}/>
 

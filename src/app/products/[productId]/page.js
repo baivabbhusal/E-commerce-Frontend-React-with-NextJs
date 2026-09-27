@@ -1,34 +1,38 @@
-import React from "react";
-import config from "@/config";
 import { getProductById } from "@/api/products";
+import ProductDescription from "./_components/ProductDescription";
+export async function generateMetadata({ params }) {
+  const { productId } = await params;
 
-export const generateMetadata = async ({ params }) => {
-  const productId = (await params).productId;
-  const product = await getProductById(productId);
-  return {
-    title: product?.name,
-    keywords: `${product?.name},${product?.brand},${product?.category}`,
-  };
-};
+  if (!productId) {
+    return { title: "Product Not Found" };
+  }
 
-const ProductDetails = async ({ params, searchParams }) => {
-  const productId = (await params).productId;
-  const response=await getProductById(productId);
+  try {
+    const res = await getProductById(productId);
+    const product = res?.data;
 
+    return {
+      title: product?.name || "Product",
+      description: product?.description?.substring(0, 160) || "Buy this product online",
+      keywords: product ? `${product.name},${product.brand},${product.category}` : "product",
+    };
+  } catch (error) {
+    return { title: "Product" };
+  }
+}
 
-  const product = response.data;
+export default async function ProductPage({ params }) {
+  const { productId } = await params;
+  let product = null;
 
-  return (
-    <div>
-      <h1>Product Id:{productId}</h1>
-      <ul className="text-green-500">
-        <li>{product.name}</li>
-        <li>{product.brand}</li>
-        <li>{product.price}</li>
-        <li>{product.description}</li>
-      </ul>
-    </div>
-  );
-};
+  if (productId) {
+    try {
+      const res = await getProductById(productId);
+      product = res?.data;
+    } catch (error) {
+      console.error("Failed to fetch product:", error);
+    }
+  }
 
-export default ProductDetails;
+  return <ProductDescription product={product} />;
+}

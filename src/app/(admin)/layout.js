@@ -1,40 +1,56 @@
-"use client";
+'use client';
 
+import React, { useEffect, useState } from 'react';
 import Spinner from '@/components/Spinner';
 import { HOME_ROUTE, LOGIN_ROUTE } from '@/constants/routes';
-import { allowedAdminRoles } from '@/helpers/auth';
+import { isUserAdmin } from '@/helpers/auth';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 import { useSelector } from 'react-redux';
+import AdminHeader from '@/components/admin/AdminHeader';
 
 const AdminLayout = ({ children }) => {
-const {user} = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
 
-  // ✅ Compute access ONCE
-  const hasAdminAccess = allowedAdminRoles(user?.roles);
+  const hasAdminAccess = isUserAdmin(user);
 
   useEffect(() => {
-    if (!user) {
+    setIsMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isMounted) return;
+
+    const token =
+      typeof window !== 'undefined' ? localStorage.getItem('authToken') : null;
+
+    // If client is mounted and neither user nor token exists, redirect to login
+    if (!user && !token) {
       router.push(LOGIN_ROUTE);
-    } else if (!hasAdminAccess) {
+      return;
+    }
+
+    // If user is loaded but doesn't have admin privileges, redirect to home
+    if (user && !hasAdminAccess) {
       router.push(HOME_ROUTE);
     }
-  }, [user, hasAdminAccess, router]);
+  }, [isMounted, user, hasAdminAccess, router]);
 
-  // 🔁 Loading state: if user is still being fetched, show spinner
-  if (!user || !hasAdminAccess) {
+  // Loading state while mounting or waiting for user rehydration
+  if (!isMounted || !user || !hasAdminAccess) {
     return (
-      <div className='flex justify-center py-20'>
-        <Spinner className='h-12 w-12 fill-gray-400' />
+      <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3 py-20">
+        <Spinner className="h-10 w-10 fill-primary" />
+        <p className="text-xs text-zinc-500 font-medium">Verifying admin credentials...</p>
       </div>
     );
   }
 
-
   return (
-    <div>
-      {children}
+    <div className="min-h-screen bg-zinc-50/60 dark:bg-zinc-950">
+      <AdminHeader />
+      <div className="pb-12">{children}</div>
     </div>
   );
 };

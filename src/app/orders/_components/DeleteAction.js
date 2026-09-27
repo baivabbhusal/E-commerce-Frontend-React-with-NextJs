@@ -2,9 +2,9 @@ import { deleteOrder } from "@/api/orders";
 import { FiAlertCircle } from "react-icons/fi";
 import { toast } from "react-toastify";
 import { useState } from "react";
-import Modal from "@/components/Modal";
 import { useRouter } from "next/navigation";
-import { ORDERS_ROUTE } from "@/constants/routes";
+import { ORDER_ROUTE } from "@/constants/routes";
+import Modal from "@/components/Modal";
 
 const DeleteAction = ({ order, setIsUpdated }) => {
   const [showModal, setShowModal] = useState(false);
@@ -16,7 +16,7 @@ const DeleteAction = ({ order, setIsUpdated }) => {
       .then(() => {
         toast.success("Order deleted successfully.", { autoClose: 1000 });
 
-        router.push(ORDERS_ROUTE);
+        router.push(ORDER_ROUTE);
 
         setIsUpdated(true);
       })

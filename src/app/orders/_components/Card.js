@@ -87,7 +87,7 @@ const OrderCard = ({ order, setIsUpdated }) => {
           <div className="flex gap-2">
             <CashOnDelivery order={order} />
             <PayViaKhalti order={order} />
-            <PayViaStripe order={order} />
+            {/* <PayViaStripe order={order} /> */}
             <DeleteAction order={order} setIsUpdated={setIsUpdated} />
           </div>
         )}

@@ -1,6 +1,6 @@
 import { clearCart } from "@/redux/cart/cartSlice";
 import { createOrder } from "@/api/orders";
-import { LOGIN_ROUTE, ORDERS_ROUTE } from "@/constants/routes";
+import { LOGIN_ROUTE, ORDER_ROUTE } from "@/constants/routes";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
@@ -31,7 +31,7 @@ const Checkout = ({ products, totalPrice }) => {
       .then(() => {
         toast.success("Order created successfully.", { autoClose: 1500 });
 
-        router.push(ORDERS_ROUTE);
+        router.push(ORDER_ROUTE);
 
         dispatch(clearCart());
       })

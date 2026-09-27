@@ -14,8 +14,8 @@ async function createOrder(data) {
 }
 
 async function getOrdersByUser(status) {
-  const query = formatParams({ status });
-  return await api.get(`/api/orders${query ? '?' + query : ''}`);
+const query = formatParams({ status });
+return await api.get(`/api/orders/user${query ? `?${query}` : ''}`);
 }
 
 async function deleteOrder(id) {
@@ -30,22 +30,22 @@ async function payViaKhalti(orderId) {
   return await api.post(`/api/orders/${orderId}/payment/khalti`);
 }
 
-async function payViaStripe(orderId) {
-  return await api.post(`/api/orders/${orderId}/payment/stripe`);
-}
+// async function payViaStripe(orderId) {
+//   return await api.post(`/api/orders/${orderId}/payment/stripe`);
+// }
 
 async function confirmPayment(orderId, data) {
-  return await api.put(`/api/orders/${orderId}/confirm-payment`, data);
+  return await api.put(`/api/orders/${orderId}/payment/confirm`, data);
 }
 
 export {
   getOrders,
-  createOrder,
+   createOrder,
   getOrdersByUser,
-  deleteOrder,
-  updateOrder,
-  payViaKhalti,
-  confirmPayment,
-  getOrdersByMerchant,
-  payViaStripe,
-};
+   deleteOrder,
+   updateOrder,
+   payViaKhalti,
+   confirmPayment,
+   getOrdersByMerchant,
+//   payViaStripe,
+ };

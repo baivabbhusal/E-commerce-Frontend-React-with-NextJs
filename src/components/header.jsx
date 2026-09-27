@@ -8,7 +8,7 @@ import CartButton from './CartButton';
 
 const Header = () => {
   return (
-     <header className="shadow sticky top-0 bg-white z-50 dark:bg-slate-800 dark:text-white">
+     <header className="shadow sticky top-0 bg-white z-50 dark:bg-slate-900 dark:text-white">
   <div className='w-full bg-primary h-4'></div>
   <div className="container mx-auto p-2">
     <div className="flex justify-between items-center">

@@ -11,7 +11,8 @@ import {
   ORDER_STATUS_SHIPPED,
 } from "@/constants/orderStatus";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ORDERS_ROUTE } from "@/constants/routes";
+import { ORDER_ROUTE } from "@/constants/routes";
+import { toast } from "react-toastify";
 
 const orderStatuses = [
   ORDER_STATUS_PENDING,
@@ -22,34 +23,55 @@ const orderStatuses = [
 
 const OrdersPage = () => {
   const searchParams = useSearchParams();
-  const statusParam = searchParams?.get("status") || ORDER_STATUS_PENDING;
-
   const router = useRouter();
+
+  const statusParam =
+    searchParams.get("status") || ORDER_STATUS_PENDING;
+
+  const paymentStatus = searchParams.get("payment");
 
   const [loading, setLoading] = useState(false);
   const [orders, setOrders] = useState([]);
   const [isUpdated, setIsUpdated] = useState(true);
 
-  function fetchOrders() {
+  // 🔁 Fetch orders
+  const fetchOrders = () => {
     setLoading(true);
 
     getOrdersByUser(statusParam)
       .then((response) => setOrders(response.data))
+      .catch(() => {
+        toast.error("Failed to load orders");
+      })
       .finally(() => {
         setLoading(false);
         setIsUpdated(false);
       });
-  }
+  };
 
+  // 🔁 React to URL changes
   useEffect(() => {
     fetchOrders();
-  }, [searchParams]);
+  }, [statusParam]);
 
+  // 🔁 External updates (payment confirmation)
   useEffect(() => {
     if (!isUpdated) return;
-
     fetchOrders();
   }, [isUpdated]);
+
+  // ✅ Handle payment feedback
+  useEffect(() => {
+    if (paymentStatus === "success") {
+      toast.success("Payment successful 🎉");
+      router.replace(`${ORDER_ROUTE}?status=${ORDER_STATUS_CONFIRMED}`);
+    }
+
+    if (paymentStatus === "failed") {
+      toast.error("Payment failed");
+      router.replace(`${ORDER_ROUTE}?status=${ORDER_STATUS_PENDING}`);
+    }
+  }, [paymentStatus]);
 
   return (
     <section className="py-10">
@@ -57,31 +79,40 @@ const OrdersPage = () => {
         Order items
       </h1>
 
+      {/* Status tabs */}
       <div className="grid grid-cols-4 my-4 border-b border-gray-200 dark:border-gray-700">
         {orderStatuses.map((orderStatus) => (
           <button
             key={orderStatus}
             className={
-              orderStatus == statusParam?.toUpperCase()
-                ? "text-xs md:text-sm font-medium text-secondary py-2 rounded  hover:bg-gray-200 dark:hover:bg-gray-600"
-                : "text-xs md:text-sm font-medium dark:text-gray-300  rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+              orderStatus === statusParam
+                ? "text-xs md:text-sm font-medium text-secondary py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
+                : "text-xs md:text-sm font-medium dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-600"
             }
-            onClick={() => router.push(`${ORDERS_ROUTE}?status=${orderStatus}`)}
+            onClick={() =>
+              router.push(`${ORDER_ROUTE}?status=${orderStatus}`)
+            }
           >
             {orderStatus}
           </button>
         ))}
       </div>
+
+      {/* Orders list */}
       <div className="grid grid-cols-1 gap-6">
         {loading ? (
           <div className="py-10 flex justify-center">
             <Spinner className="w-10 h-10 fill-secondary" />
           </div>
-        ) : orders.length == 0 ? (
+        ) : orders.length === 0 ? (
           <div className="text-center">No order items.</div>
         ) : (
-          orders.map((order, index) => (
-            <OrderCard key={index} order={order} setIsUpdated={setIsUpdated} />
+          orders.map((order) => (
+            <OrderCard
+              key={order._id}
+              order={order}
+              setIsUpdated={setIsUpdated}
+            />
           ))
         )}
       </div>

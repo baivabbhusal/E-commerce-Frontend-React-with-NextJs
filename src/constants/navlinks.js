@@ -1,4 +1,4 @@
-import { About_ROUTE, BLOGS_ROUTE, CONTACT_ROUTE, HOME_ROUTE, LOGIN_ROUTE, PRODUCT_ROUTE, REGISTER_ROUTE,ORDERS_ROUTE } from "./routes"
+import { About_ROUTE, CONTACT_ROUTE, HOME_ROUTE, LOGIN_ROUTE, PRODUCT_ROUTE, REGISTER_ROUTE,ORDER_ROUTE } from "./routes"
 
 const Navlinks=[
     {
@@ -18,13 +18,10 @@ const Navlinks=[
         label:"Contact"
     },
     {
-    route: ORDERS_ROUTE,
+    route: ORDER_ROUTE,
     label: "Orders",
   },
-    {
-        route:BLOGS_ROUTE,
-        label:"Blogs"
-    },
+
     // {
     //     route:REGISTER_ROUTE,
     //     label:"Register"

@@ -1,6 +1,6 @@
 import { updateOrder } from "@/api/orders";
 import { ORDER_STATUS_CONFIRMED } from "@/constants/orderStatus";
-import { ORDERS_ROUTE } from "@/constants/routes";
+import { ORDER_ROUTE } from "@/constants/routes";
 import { useRouter } from "next/navigation";
 import { LiaMoneyBillWaveSolid } from "react-icons/lia";
 import { toast } from "react-toastify";
@@ -15,7 +15,7 @@ const CashOnDelivery = ({ order }) => {
       .then(() => {
         toast.success("Order confirmed successfully.", { autoClose: 1000 });
 
-        router.push(`${ORDERS_ROUTE}?status=${ORDER_STATUS_CONFIRMED}`);
+        router.push(`${ORDER_ROUTE}?status=${ORDER_STATUS_CONFIRMED}`);
       })
       .catch((error) => {
         toast.error(error.response?.data, { autoClose: 1000 });

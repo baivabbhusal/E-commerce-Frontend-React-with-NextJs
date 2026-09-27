@@ -1,7 +1,7 @@
-import Model from "@/components/Modal";
 import ProductForm from "../_components/Form";
 import { MdErrorOutline } from "react-icons/md";
 import { IoArrowBackOutline } from "react-icons/io5";
+import Modal from "@/components/Modal";
 
 const AddProduct = () => {
   return (
@@ -16,7 +16,7 @@ const AddProduct = () => {
           Add a new product
         </h2>
         <ProductForm />
-        <Model
+        <Modal
           label={
             " Are you sure you want to delete this product from your account?"
           }

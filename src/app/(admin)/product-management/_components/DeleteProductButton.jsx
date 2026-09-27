@@ -1,5 +1,6 @@
 "use client"
 import { deleteProduct } from '@/api/products';
+import Modal from '@/components/Modal';
 import Model from '@/components/Modal';
 import { refreshList } from '@/redux/product/productSlice';
 import React, { useState } from 'react'
@@ -9,7 +10,7 @@ import { useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
 const DeleteProductButton = ({id}) => {
-    const [showModel, setShowModel] = useState(false);
+    const [showModal, setShowModal] = useState(false);
     const dispatch=useDispatch();
     function confirmDelete(){
        deleteProduct(id).then(()=>{
@@ -20,7 +21,7 @@ const DeleteProductButton = ({id}) => {
     )
        .catch((error)=>toast.error(error))
        .finally(()=>{
-        setShowModel(false)
+        setShowModal(false)
     });
 
     }
@@ -28,13 +29,13 @@ const DeleteProductButton = ({id}) => {
     <>
         
     <button className="text-red-300 hover:text-red-600"
-    onClick={()=>setShowModel(true)}
+    onClick={()=>setShowModal(true)}
     >
         <FaTrash />
     </button>
-             <Model
-     setShowModel={setShowModel}
-     showModel={showModel} 
+             <Modal
+     setShowModal={setShowModal}
+     showModal={showModal} 
      label="Are you sure you want to delete this product?"
           
           icon={<MdErrorOutline className="h-20 w-20 text-center text-primary" />}
