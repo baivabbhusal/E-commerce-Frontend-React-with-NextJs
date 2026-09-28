@@ -23,7 +23,7 @@ import { GrUpdate } from "react-icons/gr";
 import emptyImage from "@/assets/images/products/imagePlaceholder.png";
 import Image from "next/image";
 import Link from "next/link";
-import { PRODUCT_MANAGEMENT_ROUTE } from "@/constants/routes";
+import { PRODUCT_MANAGEMENT_ROUTE, CATEGORY_MANAGEMENT_ROUTE } from "@/constants/routes";
 import DeleteProductButton from "./DeleteProductButton";
 import { useDispatch, useSelector } from "react-redux";
 import { HiMiniChevronUpDown } from "react-icons/hi2";
@@ -103,6 +103,12 @@ const ProductTable = () => {
           >
             <FaPlus className="h-2.5 w-2.5 mr-2" />
             Add new product
+          </Link>
+          <Link
+            className="flex items-center justify-center px-4 py-2 text-sm font-medium text-primary bg-white border border-primary/30 rounded-lg hover:bg-primary/5 dark:bg-gray-800 dark:border-gray-700 dark:text-zinc-200"
+            href={CATEGORY_MANAGEMENT_ROUTE}
+          >
+            Manage Categories
           </Link>
           <button
             type="button"

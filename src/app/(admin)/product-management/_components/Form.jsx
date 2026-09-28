@@ -1,7 +1,8 @@
 "use client";
 import { createProduct, updateProduct } from "@/api/products";
+import { categoryApi } from "@/services/api";
 import Button from "@/components/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import Image from "next/image";
@@ -10,16 +11,54 @@ const ProductForm = ({product,isUpdating}) => {
   const [loading, setLoading] = useState(false);
   const [localImageUrls,setLocalImageUrls]=useState([]);
   const [productImages,setProductImages]=useState([]);
+  const [categories, setCategories] = useState([]);
+  const [isCreatingCategory, setIsCreatingCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
+  const [savingCategory, setSavingCategory] = useState(false);
+
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm( 
     {
       values:product,
     }
   );
+
+  useEffect(() => {
+    async function fetchCategories() {
+      try {
+        const catList = await categoryApi.getAll();
+        setCategories(Array.isArray(catList) ? catList : []);
+      } catch (e) {
+        console.error("Failed to load categories in form:", e);
+      }
+    }
+    fetchCategories();
+  }, []);
+
+  const handleAddNewCategory = async () => {
+    if (!newCategoryName.trim()) {
+      toast.error("Please enter a category name");
+      return;
+    }
+    try {
+      setSavingCategory(true);
+      const created = await categoryApi.create({ name: newCategoryName.trim() });
+      setCategories((prev) => [created, ...prev]);
+      setValue("category", created.name, { shouldValidate: true });
+      toast.success(`Category "${created.name}" created and selected!`);
+      setNewCategoryName("");
+      setIsCreatingCategory(false);
+    } catch (err) {
+      toast.error("Failed to create category");
+    } finally {
+      setSavingCategory(false);
+    }
+  };
   function prepareData(data) {
     const formData = new FormData();
     formData.append("name", data.name);
@@ -127,28 +166,64 @@ const ProductForm = ({product,isUpdating}) => {
             <p className="text-red-500 mt-2">{errors.price?.message}</p>
           </div>
           <div>
-            <label
-              htmlFor="category"
-              className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-            >
-              Category
-            </label>
-            <select
-              id="category"
-              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-              {...register("category", {
-                required: "Product category is required.",
-              })}
-            >
-              <option value="">Select category</option>
-              <option value="Pant">Pant</option>
-              <option value="T-shirt">T-Shirt</option>
-              <option value="Hoodie">Hoodie</option>
-              <option value="Underwear">Underwear</option>
-              <option value="Coat">Coat</option>
-              <option value="Traditional">Traditional</option>
-              <option value="shirt">Shirt</option>
-            </select>
+            <div className="flex items-center justify-between mb-2">
+              <label
+                htmlFor="category"
+                className="text-sm font-medium text-gray-900 dark:text-white"
+              >
+                Category
+              </label>
+              <button
+                type="button"
+                onClick={() => setIsCreatingCategory(!isCreatingCategory)}
+                className="text-xs font-semibold text-primary hover:underline dark:text-emerald-400"
+              >
+                {isCreatingCategory ? "Select from list" : "+ Add New Category"}
+              </button>
+            </div>
+
+            {isCreatingCategory ? (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  placeholder="New category name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white"
+                />
+                <button
+                  type="button"
+                  disabled={savingCategory}
+                  onClick={handleAddNewCategory}
+                  className="px-3 py-2 text-xs font-bold text-white bg-primary rounded-lg hover:bg-primary/80 disabled:opacity-50"
+                >
+                  {savingCategory ? "Saving..." : "Save"}
+                </button>
+              </div>
+            ) : (
+              <select
+                id="category"
+                className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                {...register("category", {
+                  required: "Product category is required.",
+                })}
+              >
+                <option value="">Select category</option>
+                {/* Dynamically list all categories */}
+                {categories.map((c) => {
+                  const val = c.name || c;
+                  return (
+                    <option key={c.id || val} value={val}>
+                      {val}
+                    </option>
+                  );
+                })}
+                {/* Fallback default options if categories still loading or not in list */}
+                {product?.category && !categories.some((c) => (c.name || c) === product.category) && (
+                  <option value={product.category}>{product.category}</option>
+                )}
+              </select>
+            )}
             <p className="text-red-500 mt-2">{errors.category?.message}</p>
           </div>
           <div>

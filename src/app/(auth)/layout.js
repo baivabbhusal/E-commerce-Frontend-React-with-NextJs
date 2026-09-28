@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { HOME_ROUTE } from '@/constants/routes';
 
-const layout = ({children}) => {
+const AuthLayout = ({children}) => {
 const {user}=useSelector((state)=>state.auth);
 const router=useRouter();
   useEffect(()=>{
@@ -37,4 +37,4 @@ if(user) router.push(HOME_ROUTE);
   )
 }
 
-export default layout
+export default AuthLayout;

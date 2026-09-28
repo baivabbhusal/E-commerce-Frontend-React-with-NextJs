@@ -25,7 +25,7 @@ const AddProduct = () => {
                   <button
                   className="text-white bg-secondary box-border border border-transparent hover:bg-secondary/90 focus:ring-4 focus:ring-danger-medium shadow-xs font-medium leading-5 rounded-base text-sm px-4 py-2.5 focus:outline-none"
                 >
-                  Yes, I'm sure
+                  Yes, I&apos;m sure
                 </button>
           }
         />
