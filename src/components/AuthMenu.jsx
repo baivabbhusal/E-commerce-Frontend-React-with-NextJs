@@ -1,26 +1,25 @@
-'use client';
+﻿'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import {
-  LOGIN_ROUTE,
-  DASHBOARD_ROUTE,
-  ORDER_ROUTE,
-  CATEGORY_MANAGEMENT_ROUTE,
-  USERS_ROUTE,
-} from '@/constants/routes';
+import { LOGIN_ROUTE, DASHBOARD_ROUTE, HOME_ROUTE, ORDER_ROUTE } from '@/constants/routes';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '@/redux/auth/authSlice';
 import { isUserAdmin } from '@/helpers/auth';
+
+const ADMIN_PREFIXES = ['/dashboard', '/product-management'];
 
 const AuthMenu = () => {
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const router = useRouter();
+  const pathname = usePathname();
   const isAdmin = isUserAdmin(user);
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = useRef(null);
+
+  const isOnAdminRoute = ADMIN_PREFIXES.some((p) => pathname.startsWith(p));
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -39,89 +38,83 @@ const AuthMenu = () => {
   }
 
   if (user) {
-    const roleDisplay = isAdmin ? 'Admin User' : (user.role || 'Customer');
     const displayName = user.name || user.email?.split('@')[0] || 'User';
+    const initial = displayName.charAt(0).toUpperCase();
+    const roleLabel = isAdmin ? 'Admin' : (user.role || 'User');
 
     return (
-      <div className="relative flex items-center gap-2" ref={menuRef}>
-        {/* Clickable User Name */}
+      <div className="relative" ref={menuRef}>
+        {/* Circle Avatar Button */}
         <button
           type="button"
           onClick={() => setIsOpen((prev) => !prev)}
-          className="flex items-center gap-1.5 rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-semibold text-zinc-700 hover:border-primary/50 hover:text-primary transition dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200"
-          title="Click to view user details"
+          title={displayName}
+          className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white font-bold text-sm shadow-md ring-2 ring-primary/30 hover:scale-105 hover:shadow-lg transition-all active:scale-95 select-none"
         >
-          <span className="max-w-[120px] truncate">{displayName}</span>
-          <span className="text-[9px] text-zinc-400">▼</span>
+          {initial}
         </button>
 
-        {/* User Details Dropdown */}
+        {/* Dropdown */}
         {isOpen && (
-          <div className="absolute right-0 top-full mt-2 w-64 rounded-2xl border border-zinc-200 bg-white p-4 shadow-xl dark:border-zinc-800 dark:bg-zinc-900 z-50">
-            <div className="pb-3 border-b border-zinc-100 dark:border-zinc-800">
-              <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate">
-                {user.name || displayName}
-              </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate">
-                {user.email || 'No email provided'}
-              </p>
-              <div className="mt-2 inline-block rounded-full bg-secondary/15 px-2.5 py-0.5 text-[10px] font-bold text-secondary">
-                {roleDisplay}
+          <div className="absolute right-0 top-full mt-2 w-52 rounded-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900 z-50 overflow-hidden">
+            {/* User info header */}
+            <div className="flex items-center gap-3 px-4 py-3 border-b border-zinc-100 dark:border-zinc-800">
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary text-white font-bold text-sm shrink-0">
+                {initial}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-bold text-zinc-900 dark:text-zinc-100 truncate">{displayName}</p>
+                <span className="text-[10px] font-semibold text-secondary">{roleLabel}</span>
               </div>
             </div>
 
-            <div className="py-2 space-y-1 text-xs">
-              {isAdmin && (
-                <>
-                  <Link
-                    href={DASHBOARD_ROUTE}
-                    onClick={() => setIsOpen(false)}
-                    className="block rounded-lg px-2.5 py-1.5 text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 transition"
-                  >
-                    Admin Dashboard
-                  </Link>
-                  <Link
-                    href={CATEGORY_MANAGEMENT_ROUTE}
-                    onClick={() => setIsOpen(false)}
-                    className="block rounded-lg px-2.5 py-1.5 text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 transition"
-                  >
-                    Manage Categories
-                  </Link>
-                  <Link
-                    href={USERS_ROUTE}
-                    onClick={() => setIsOpen(false)}
-                    className="block rounded-lg px-2.5 py-1.5 text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 transition"
-                  >
-                    Admin Users
-                  </Link>
-                </>
+            {/* Links */}
+            <div className="py-1.5">
+              {/* Admin Panel — only for admins who are NOT already on admin routes */}
+              {isAdmin && !isOnAdminRoute && (
+                <Link
+                  href={DASHBOARD_ROUTE}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-4 py-2.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800 transition"
+                >
+                  Admin Panel
+                </Link>
               )}
-              <Link
-                href={ORDER_ROUTE}
-                onClick={() => setIsOpen(false)}
-                className="block rounded-lg px-2.5 py-1.5 text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800 transition"
-              >
-                My Orders
-              </Link>
+
+              {/* Live Store — only when on admin routes */}
+              {isOnAdminRoute && (
+                <Link
+                  href={HOME_ROUTE}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-4 py-2.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800 transition"
+                >
+                  Live Store
+                </Link>
+              )}
+
+              {/* My Orders — only for non-admin users */}
+              {!isAdmin && (
+                <Link
+                  href={ORDER_ROUTE}
+                  onClick={() => setIsOpen(false)}
+                  className="block px-4 py-2.5 text-xs font-medium text-zinc-700 hover:bg-zinc-50 dark:text-zinc-300 dark:hover:bg-zinc-800 transition"
+                >
+                  My Orders
+                </Link>
+              )}
             </div>
 
-            <div className="pt-2 border-t border-zinc-100 dark:border-zinc-800">
+            {/* Logout */}
+            <div className="border-t border-zinc-100 dark:border-zinc-800 p-2">
               <button
-                className="w-full rounded-xl bg-red-50 py-1.5 text-center text-xs font-semibold text-red-600 hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 transition"
                 onClick={logoutUser}
+                className="w-full rounded-xl bg-red-50 py-2 text-xs font-semibold text-red-600 hover:bg-red-100 dark:bg-red-950/40 dark:text-red-400 transition active:scale-95"
               >
                 Log Out
               </button>
             </div>
           </div>
         )}
-
-        <button
-          className="text-xs text-secondary border-secondary border rounded-3xl px-3 py-1 font-semibold hover:bg-secondary hover:text-white transition active:scale-95"
-          onClick={logoutUser}
-        >
-          Log Out
-        </button>
       </div>
     );
   }
